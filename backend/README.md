@@ -143,14 +143,46 @@ Activate a profile:
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
+### Environment Variables
+
+For security, configure sensitive values using environment variables:
+
+```bash
+# Security credentials (production)
+export SPRING_SECURITY_USER_NAME=admin
+export SPRING_SECURITY_USER_PASSWORD=your-secure-password
+
+# Run the application
+mvn spring-boot:run
+```
+
+Or set them when running the JAR:
+```bash
+SPRING_SECURITY_USER_NAME=admin SPRING_SECURITY_USER_PASSWORD=your-secure-password java -jar target/backend-0.0.1-SNAPSHOT.jar
+```
+
 ## Security
 
 The application uses Spring Security with a basic configuration:
 - All `/api/**` endpoints are currently accessible without authentication (for initial development)
 - The `/actuator/health` endpoint is publicly accessible
 - Other endpoints require authentication
+- CSRF protection is disabled for stateless REST APIs (will be configured appropriately when implementing session-based authentication)
 
-**Note**: Before deploying to production, properly configure authentication and authorization mechanisms.
+### Security Configuration for Production
+
+Before deploying to production:
+1. **Enable CSRF Protection**: Configure CSRF for session-based endpoints
+2. **Implement Authentication**: Use JWT, OAuth2, or session-based authentication
+3. **Use Environment Variables**: Never hardcode credentials in configuration files
+4. **Enable HTTPS**: Always use TLS/SSL in production
+5. **Configure CORS**: Properly configure CORS for frontend integration
+
+Example environment variables for production:
+```bash
+export SPRING_SECURITY_USER_NAME=admin
+export SPRING_SECURITY_USER_PASSWORD=strong-random-password
+```
 
 ## Development Guidelines
 

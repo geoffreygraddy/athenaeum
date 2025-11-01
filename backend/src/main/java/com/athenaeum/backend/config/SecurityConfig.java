@@ -9,7 +9,12 @@ import org.springframework.security.web.SecurityFilterChain;
 /**
  * Security configuration for the Athenaeum Backend.
  * Currently configured to permit all requests for initial development.
- * This should be properly configured with authentication/authorization in production.
+ * 
+ * PRODUCTION CONSIDERATIONS:
+ * - Enable CSRF protection for stateful endpoints
+ * - Implement proper authentication (JWT, OAuth2, etc.)
+ * - Configure CORS appropriately for frontend integration
+ * - Use HTTPS in production environments
  */
 @Configuration
 @EnableWebSecurity
@@ -22,7 +27,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/**", "/actuator/health").permitAll()
                 .anyRequest().authenticated()
             )
-            .csrf(csrf -> csrf.disable()); // Disable CSRF for API endpoints (configure properly in production)
+            // CSRF is disabled for initial development with stateless REST APIs
+            // TODO: Enable CSRF protection when implementing session-based authentication
+            // or configure exemptions only for token-based API endpoints
+            .csrf(csrf -> csrf.disable());
         
         return http.build();
     }

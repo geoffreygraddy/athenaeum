@@ -13,10 +13,12 @@ spring:
     timeout: 30m
   
   # Security configuration
+  # NOTE: Configure these via environment variables in production:
+  # SPRING_SECURITY_USER_NAME and SPRING_SECURITY_USER_PASSWORD
   security:
     user:
-      name: admin
-      password: changeme
+      name: ${SPRING_SECURITY_USER_NAME:admin}
+      password: ${SPRING_SECURITY_USER_PASSWORD:changeme}
 
 # Actuator configuration for health checks
 management:
