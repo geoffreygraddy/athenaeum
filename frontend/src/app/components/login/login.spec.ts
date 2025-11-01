@@ -82,7 +82,7 @@ describe('Login', () => {
       username: 'testuser',
       password: 'password123'
     });
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/']);
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/dashboard']);
   });
 
   it('should display error message on login failure', () => {

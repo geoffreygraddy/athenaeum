@@ -41,7 +41,7 @@ export class Login {
       next: (response) => {
         this.isLoading.set(false);
         if (response.success) {
-          this.router.navigate(['/']);
+          this.router.navigate(['/dashboard']);
         } else {
           this.errorMessage.set(response.message || 'Login failed. Please try again.');
         }
