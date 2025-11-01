@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, UrlTree } from '@angular/router';
+import { of, isObservable, firstValueFrom } from 'rxjs';
 import { authGuard } from './auth.guard';
 import { Auth } from '../services/auth';
 
@@ -19,23 +20,33 @@ describe('authGuard', () => {
     });
   });
 
-  it('should allow access when user is authenticated', () => {
-    mockAuthService.checkAuthStatus.and.returnValue(true);
+  it('should allow access when user is authenticated', async () => {
+    mockAuthService.checkAuthStatus.and.returnValue(of(true));
 
     const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
 
-    expect(result).toBe(true);
+    if (isObservable(result)) {
+      const value = await firstValueFrom(result);
+      expect(value).toBe(true);
+    } else {
+      expect(result).toBe(true);
+    }
     expect(mockAuthService.checkAuthStatus).toHaveBeenCalled();
   });
 
-  it('should redirect to login when user is not authenticated', () => {
+  it('should redirect to login when user is not authenticated', async () => {
     const mockUrlTree = {} as UrlTree;
-    mockAuthService.checkAuthStatus.and.returnValue(false);
+    mockAuthService.checkAuthStatus.and.returnValue(of(false));
     mockRouter.createUrlTree.and.returnValue(mockUrlTree);
 
     const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
 
-    expect(result).toBe(mockUrlTree);
+    if (isObservable(result)) {
+      const value = await firstValueFrom(result);
+      expect(value).toBe(mockUrlTree);
+    } else {
+      expect(result).toBe(mockUrlTree);
+    }
     expect(mockAuthService.checkAuthStatus).toHaveBeenCalled();
     expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/login']);
   });

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { signal } from '@angular/core';
+import { of } from 'rxjs';
 import { Dashboard } from './dashboard';
 import { Auth } from '../../services/auth';
 
@@ -46,6 +47,8 @@ describe('Dashboard', () => {
   });
 
   it('should logout and navigate to login page', () => {
+    mockAuthService.logout.and.returnValue(of({ success: true, message: 'Logout successful', username: null }));
+    
     component.logout();
     
     expect(mockAuthService.logout).toHaveBeenCalled();

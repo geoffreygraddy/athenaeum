@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, catchError, of } from 'rxjs';
+import { Observable, tap, catchError, of, map } from 'rxjs';
 
 export interface LoginCredentials {
   username: string;
@@ -10,7 +10,12 @@ export interface LoginCredentials {
 export interface AuthResponse {
   success: boolean;
   message?: string;
-  token?: string;
+  username?: string | null;
+}
+
+export interface UserInfo {
+  username: string | null;
+  authenticated: boolean;
 }
 
 @Injectable({
@@ -29,12 +34,11 @@ export class Auth {
   login(credentials: LoginCredentials): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap((response) => {
-        if (response.success) {
+        if (response.success && response.username) {
           this.isAuthenticatedSignal.set(true);
-          this.currentUserSignal.set(credentials.username);
-          if (response.token) {
-            localStorage.setItem('auth_token', response.token);
-          }
+          this.currentUserSignal.set(response.username);
+          // Call getUserInfo to establish session state with backend
+          this.getUserInfo().subscribe();
         }
       }),
       catchError((error) => {
@@ -47,18 +51,43 @@ export class Auth {
     );
   }
 
-  logout(): void {
-    this.isAuthenticatedSignal.set(false);
-    this.currentUserSignal.set(null);
-    localStorage.removeItem('auth_token');
+  logout(): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/logout`, {}).pipe(
+      tap(() => {
+        this.isAuthenticatedSignal.set(false);
+        this.currentUserSignal.set(null);
+      }),
+      catchError((error) => {
+        console.error('Logout error:', error);
+        // Clear local state even if server request fails
+        this.isAuthenticatedSignal.set(false);
+        this.currentUserSignal.set(null);
+        return of({
+          success: false,
+          message: 'Server logout failed, but you have been logged out locally.',
+        });
+      })
+    );
   }
 
-  checkAuthStatus(): boolean {
-    const token = localStorage.getItem('auth_token');
-    const isAuth = !!token;
-    // TODO: Implement proper JWT token validation including expiration check
-    // when backend provides token validation endpoint
-    this.isAuthenticatedSignal.set(isAuth);
-    return isAuth;
+  getUserInfo(): Observable<UserInfo> {
+    return this.http.get<UserInfo>(`${this.apiUrl}/user`).pipe(
+      tap((userInfo) => {
+        this.isAuthenticatedSignal.set(userInfo.authenticated);
+        this.currentUserSignal.set(userInfo.username);
+      }),
+      catchError((error) => {
+        console.error('Get user info error:', error);
+        this.isAuthenticatedSignal.set(false);
+        this.currentUserSignal.set(null);
+        return of({ username: null, authenticated: false });
+      })
+    );
+  }
+
+  checkAuthStatus(): Observable<boolean> {
+    return this.getUserInfo().pipe(
+      map(userInfo => userInfo.authenticated)
+    );
   }
 }

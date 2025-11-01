@@ -67,7 +67,8 @@ describe('Login', () => {
   it('should submit valid form and navigate on success', () => {
     const mockResponse: AuthResponse = {
       success: true,
-      token: 'test-token'
+      message: 'Login successful',
+      username: 'testuser'
     };
     mockAuthService.login.and.returnValue(of(mockResponse));
     
@@ -119,7 +120,7 @@ describe('Login', () => {
   });
 
   it('should show loading state during login', () => {
-    const mockResponse: AuthResponse = { success: true };
+    const mockResponse: AuthResponse = { success: true, username: 'testuser' };
     mockAuthService.login.and.returnValue(of(mockResponse));
     
     component.loginForm.patchValue({
