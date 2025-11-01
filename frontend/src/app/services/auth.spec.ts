@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { Auth, LoginCredentials, AuthResponse } from './auth';
+import { Auth, LoginCredentials, AuthResponse, UserInfo } from './auth';
 
 describe('Auth', () => {
   let service: Auth;
@@ -16,12 +16,10 @@ describe('Auth', () => {
     });
     service = TestBed.inject(Auth);
     httpMock = TestBed.inject(HttpTestingController);
-    localStorage.clear();
   });
 
   afterEach(() => {
     httpMock.verify();
-    localStorage.clear();
   });
 
   it('should be created', () => {
@@ -36,15 +34,14 @@ describe('Auth', () => {
     const mockResponse: AuthResponse = {
       success: true,
       message: 'Login successful',
-      token: 'test-token-123'
+      username: 'testuser'
     };
 
     service.login(credentials).subscribe((response) => {
       expect(response.success).toBe(true);
-      expect(response.token).toBe('test-token-123');
+      expect(response.username).toBe('testuser');
       expect(service.isAuthenticated()).toBe(true);
       expect(service.currentUser()).toBe('testuser');
-      expect(localStorage.getItem('auth_token')).toBe('test-token-123');
       done();
     });
 
@@ -75,20 +72,74 @@ describe('Auth', () => {
     );
   });
 
-  it('should logout user', () => {
-    localStorage.setItem('auth_token', 'test-token');
-    service.logout();
-    
-    expect(service.isAuthenticated()).toBe(false);
-    expect(service.currentUser()).toBeNull();
-    expect(localStorage.getItem('auth_token')).toBeNull();
+  it('should logout user', (done) => {
+    const mockResponse: AuthResponse = {
+      success: true,
+      message: 'Logout successful',
+      username: null
+    };
+
+    service.logout().subscribe((response) => {
+      expect(response.success).toBe(true);
+      expect(service.isAuthenticated()).toBe(false);
+      expect(service.currentUser()).toBeNull();
+      done();
+    });
+
+    const req = httpMock.expectOne('/api/auth/logout');
+    expect(req.request.method).toBe('POST');
+    req.flush(mockResponse);
   });
 
-  it('should check auth status based on token', () => {
-    expect(service.checkAuthStatus()).toBe(false);
-    
-    localStorage.setItem('auth_token', 'test-token');
-    expect(service.checkAuthStatus()).toBe(true);
-    expect(service.isAuthenticated()).toBe(true);
+  it('should get user info when authenticated', (done) => {
+    const mockUserInfo: UserInfo = {
+      username: 'testuser',
+      authenticated: true
+    };
+
+    service.getUserInfo().subscribe((userInfo) => {
+      expect(userInfo.authenticated).toBe(true);
+      expect(userInfo.username).toBe('testuser');
+      expect(service.isAuthenticated()).toBe(true);
+      expect(service.currentUser()).toBe('testuser');
+      done();
+    });
+
+    const req = httpMock.expectOne('/api/auth/user');
+    expect(req.request.method).toBe('GET');
+    req.flush(mockUserInfo);
+  });
+
+  it('should get user info when not authenticated', (done) => {
+    const mockUserInfo: UserInfo = {
+      username: null,
+      authenticated: false
+    };
+
+    service.getUserInfo().subscribe((userInfo) => {
+      expect(userInfo.authenticated).toBe(false);
+      expect(userInfo.username).toBeNull();
+      expect(service.isAuthenticated()).toBe(false);
+      expect(service.currentUser()).toBeNull();
+      done();
+    });
+
+    const req = httpMock.expectOne('/api/auth/user');
+    req.flush(mockUserInfo);
+  });
+
+  it('should check auth status', (done) => {
+    const mockUserInfo: UserInfo = {
+      username: 'testuser',
+      authenticated: true
+    };
+
+    service.checkAuthStatus().subscribe((isAuthenticated) => {
+      expect(isAuthenticated).toBe(true);
+      done();
+    });
+
+    const req = httpMock.expectOne('/api/auth/user');
+    req.flush(mockUserInfo);
   });
 });
