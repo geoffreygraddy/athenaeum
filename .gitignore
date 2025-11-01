@@ -36,3 +36,15 @@ coverage/
 # Temporary files
 *.tmp
 .cache/
+
+# Java/Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+.mvn/
+mvn.cmd
+mvnw
+mvnw.cmd
