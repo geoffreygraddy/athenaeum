@@ -32,7 +32,12 @@ export class Login {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    this.authService.login(this.loginForm.value).subscribe({
+    const credentials = {
+      username: this.loginForm.value.username!,
+      password: this.loginForm.value.password!
+    };
+
+    this.authService.login(credentials).subscribe({
       next: (response) => {
         this.isLoading.set(false);
         if (response.success) {

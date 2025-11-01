@@ -56,6 +56,8 @@ export class Auth {
   checkAuthStatus(): boolean {
     const token = localStorage.getItem('auth_token');
     const isAuth = !!token;
+    // TODO: Implement proper JWT token validation including expiration check
+    // when backend provides token validation endpoint
     this.isAuthenticatedSignal.set(isAuth);
     return isAuth;
   }
