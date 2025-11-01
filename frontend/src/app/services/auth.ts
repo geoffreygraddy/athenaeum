@@ -37,7 +37,7 @@ export class Auth {
         if (response.success && response.username) {
           this.isAuthenticatedSignal.set(true);
           this.currentUserSignal.set(response.username);
-          // Call getUserInfo to ensure CSRF token is set
+          // Call getUserInfo to establish session state with backend
           this.getUserInfo().subscribe();
         }
       }),
@@ -64,7 +64,7 @@ export class Auth {
         this.currentUserSignal.set(null);
         return of({
           success: false,
-          message: 'Logout failed, but local session cleared.',
+          message: 'Server logout failed, but you have been logged out locally.',
         });
       })
     );
