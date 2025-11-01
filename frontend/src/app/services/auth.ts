@@ -37,6 +37,8 @@ export class Auth {
         if (response.success && response.username) {
           this.isAuthenticatedSignal.set(true);
           this.currentUserSignal.set(response.username);
+          // Call getUserInfo to ensure CSRF token is set
+          this.getUserInfo().subscribe();
         }
       }),
       catchError((error) => {

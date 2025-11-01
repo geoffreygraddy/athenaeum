@@ -36,6 +36,10 @@ describe('Auth', () => {
       message: 'Login successful',
       username: 'testuser'
     };
+    const mockUserInfo: UserInfo = {
+      username: 'testuser',
+      authenticated: true
+    };
 
     service.login(credentials).subscribe((response) => {
       expect(response.success).toBe(true);
@@ -45,10 +49,15 @@ describe('Auth', () => {
       done();
     });
 
-    const req = httpMock.expectOne('/api/auth/login');
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual(credentials);
-    req.flush(mockResponse);
+    const loginReq = httpMock.expectOne('/api/auth/login');
+    expect(loginReq.request.method).toBe('POST');
+    expect(loginReq.request.body).toEqual(credentials);
+    loginReq.flush(mockResponse);
+
+    // Expect getUserInfo to be called after successful login
+    const userInfoReq = httpMock.expectOne('/api/auth/user');
+    expect(userInfoReq.request.method).toBe('GET');
+    userInfoReq.flush(mockUserInfo);
   });
 
   it('should handle login failure', (done) => {
