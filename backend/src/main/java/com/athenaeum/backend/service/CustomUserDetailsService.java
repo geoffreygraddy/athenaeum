@@ -1,5 +1,6 @@
 package com.athenaeum.backend.service;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,9 +23,17 @@ public class CustomUserDetailsService implements UserDetailsService {
     
     @Value("${spring.security.user.password}")
     private String password;
+    
+    private String encodedPassword;
 
     public CustomUserDetailsService(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
+    }
+    
+    @PostConstruct
+    public void init() {
+        // Encode password once during initialization
+        this.encodedPassword = passwordEncoder.encode(this.password);
     }
 
     @Override
@@ -32,7 +41,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (username.equals(this.username)) {
             return User.builder()
                 .username(this.username)
-                .password(passwordEncoder.encode(this.password))
+                .password(this.encodedPassword)
                 .roles("USER")
                 .build();
         }
