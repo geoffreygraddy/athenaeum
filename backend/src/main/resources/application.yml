@@ -7,9 +7,34 @@ spring:
   application:
     name: athenaeum-backend
   
+  # Database configuration (H2 in-memory for development)
+  datasource:
+    url: jdbc:h2:mem:athenaeum
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  
+  # SQL initialization
+  sql:
+    init:
+      mode: always
+  
+  # JPA configuration
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  
+  # H2 Console (for development only)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
   # Session management configuration
   session:
-    store-type: none
+    store-type: jdbc
     timeout: 30m
   
   # Security configuration

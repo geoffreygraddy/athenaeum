@@ -37,10 +37,23 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         
-        <!-- Spring Session for session management -->
+        <!-- Spring Session JDBC for session management -->
         <dependency>
             <groupId>org.springframework.session</groupId>
-            <artifactId>spring-session-core</artifactId>
+            <artifactId>spring-session-jdbc</artifactId>
+        </dependency>
+        
+        <!-- Spring Boot Data JPA -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        
+        <!-- H2 Database for in-memory storage -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
         </dependency>
         
         <!-- Spring Boot Actuator for health check -->
