@@ -44,7 +44,9 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("Login successful"))
-                .andExpect(jsonPath("$.username").value("admin"));
+                .andExpect(jsonPath("$.username").value("admin"))
+                .andExpect(jsonPath("$.labels").isArray())
+                .andExpect(jsonPath("$.labels.length()").value(11));
     }
 
     @Test
@@ -125,7 +127,9 @@ class AuthControllerTest {
         mockMvc.perform(get("/api/auth/user"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.authenticated").value(true))
-                .andExpect(jsonPath("$.username").value("admin"));
+                .andExpect(jsonPath("$.username").value("admin"))
+                .andExpect(jsonPath("$.labels").isArray())
+                .andExpect(jsonPath("$.labels.length()").value(11));
     }
 
     @Test
@@ -143,5 +147,26 @@ class AuthControllerTest {
         MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
         assertNotNull(session, "Session should be created after login");
         assertFalse(session.isInvalid(), "Session should not be invalid");
+    }
+
+    @Test
+    void login_ShouldReturnAllSessionLabels() throws Exception {
+        LoginRequest loginRequest = new LoginRequest("admin", "changeme");
+
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.labels[0]").value("COMPUTER_SCIENCE"))
+                .andExpect(jsonPath("$.labels[1]").value("PHILOSOPHY"))
+                .andExpect(jsonPath("$.labels[2]").value("RELIGION"))
+                .andExpect(jsonPath("$.labels[3]").value("SOCIAL_SCIENCES"))
+                .andExpect(jsonPath("$.labels[4]").value("LANGUAGE"))
+                .andExpect(jsonPath("$.labels[5]").value("SCIENCE"))
+                .andExpect(jsonPath("$.labels[6]").value("TECHNOLOGY"))
+                .andExpect(jsonPath("$.labels[7]").value("ARTS"))
+                .andExpect(jsonPath("$.labels[8]").value("LITERATURE"))
+                .andExpect(jsonPath("$.labels[9]").value("HISTORY"))
+                .andExpect(jsonPath("$.labels[10]").value("GEOGRAPHY"));
     }
 }

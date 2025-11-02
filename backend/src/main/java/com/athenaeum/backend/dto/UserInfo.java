@@ -1,11 +1,14 @@
 package com.athenaeum.backend.dto;
 
+import java.util.List;
+
 /**
  * DTO for user information.
  */
 public class UserInfo {
     private String username;
     private boolean authenticated;
+    private List<SessionLabel> labels;
 
     public UserInfo() {
     }
@@ -13,6 +16,12 @@ public class UserInfo {
     public UserInfo(String username, boolean authenticated) {
         this.username = username;
         this.authenticated = authenticated;
+    }
+
+    public UserInfo(String username, boolean authenticated, List<SessionLabel> labels) {
+        this.username = username;
+        this.authenticated = authenticated;
+        this.labels = labels;
     }
 
     public String getUsername() {
@@ -29,5 +38,13 @@ public class UserInfo {
 
     public void setAuthenticated(boolean authenticated) {
         this.authenticated = authenticated;
+    }
+
+    public List<SessionLabel> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(List<SessionLabel> labels) {
+        this.labels = labels;
     }
 }
