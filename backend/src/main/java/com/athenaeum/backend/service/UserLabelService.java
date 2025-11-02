@@ -3,10 +3,9 @@ package com.athenaeum.backend.service;
 import com.athenaeum.backend.dto.SessionLabel;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Service for managing user session labels.
@@ -15,12 +14,13 @@ import java.util.Map;
 @Service
 public class UserLabelService {
 
-    private final Map<String, List<SessionLabel>> userLabels = new HashMap<>();
+    private static final List<SessionLabel> ALL_LABELS = List.of(SessionLabel.values());
+    private final Map<String, List<SessionLabel>> userLabels = new ConcurrentHashMap<>();
 
     public UserLabelService() {
         // Initialize default labels for the admin user
         // In a real application, this would be stored in a database
-        userLabels.put("admin", Arrays.asList(SessionLabel.values()));
+        userLabels.put("admin", ALL_LABELS);
     }
 
     /**
