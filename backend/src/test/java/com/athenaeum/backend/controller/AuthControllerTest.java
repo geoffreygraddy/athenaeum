@@ -92,6 +92,26 @@ class AuthControllerTest {
     }
 
     @Test
+    void logout_WithoutCsrfToken_ShouldSucceed() throws Exception {
+        // First login
+        LoginRequest loginRequest = new LoginRequest("admin", "changeme");
+        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        MockHttpSession session = (MockHttpSession) loginResult.getRequest().getSession();
+
+        // Then logout without CSRF token - should succeed since /api/auth/logout is exempt
+        mockMvc.perform(post("/api/auth/logout")
+                .session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message").value("Logout successful"));
+    }
+
+    @Test
     void getUserInfo_WhenNotAuthenticated_ShouldReturnUnauthenticated() throws Exception {
         mockMvc.perform(get("/api/auth/user"))
                 .andExpect(status().isOk())
