@@ -2,7 +2,9 @@ package com.athenaeum.backend.controller;
 
 import com.athenaeum.backend.dto.AuthResponse;
 import com.athenaeum.backend.dto.LoginRequest;
+import com.athenaeum.backend.dto.SessionLabel;
 import com.athenaeum.backend.dto.UserInfo;
+import com.athenaeum.backend.service.UserLabelService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * Authentication controller for handling login, logout, and user info.
  */
@@ -24,9 +28,11 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
+    private final UserLabelService userLabelService;
 
-    public AuthController(AuthenticationManager authenticationManager) {
+    public AuthController(AuthenticationManager authenticationManager, UserLabelService userLabelService) {
         this.authenticationManager = authenticationManager;
+        this.userLabelService = userLabelService;
     }
 
     /**
@@ -56,10 +62,13 @@ public class AuthController {
             HttpSession session = request.getSession(true);
             session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
 
-            return ResponseEntity.ok(new AuthResponse(true, "Login successful", authentication.getName()));
+            // Get user labels
+            List<SessionLabel> labels = userLabelService.getUserLabels(authentication.getName());
+
+            return ResponseEntity.ok(new AuthResponse(true, "Login successful", authentication.getName(), labels));
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new AuthResponse(false, "Invalid username or password", null));
+                .body(new AuthResponse(false, "Invalid username or password", null, null));
         }
     }
 
@@ -77,7 +86,7 @@ public class AuthController {
         }
         SecurityContextHolder.clearContext();
         
-        return ResponseEntity.ok(new AuthResponse(true, "Logout successful", null));
+        return ResponseEntity.ok(new AuthResponse(true, "Logout successful", null, null));
     }
 
     /**
@@ -91,9 +100,10 @@ public class AuthController {
         
         if (authentication != null && authentication.isAuthenticated() 
             && !authentication.getName().equals("anonymousUser")) {
-            return ResponseEntity.ok(new UserInfo(authentication.getName(), true));
+            List<SessionLabel> labels = userLabelService.getUserLabels(authentication.getName());
+            return ResponseEntity.ok(new UserInfo(authentication.getName(), true, labels));
         }
         
-        return ResponseEntity.ok(new UserInfo(null, false));
+        return ResponseEntity.ok(new UserInfo(null, false, List.of()));
     }
 }

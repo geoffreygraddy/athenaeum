@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 
 /**
  * Test class for AuthController.
@@ -44,7 +45,9 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("Login successful"))
-                .andExpect(jsonPath("$.username").value("admin"));
+                .andExpect(jsonPath("$.username").value("admin"))
+                .andExpect(jsonPath("$.labels").isArray())
+                .andExpect(jsonPath("$.labels.length()").value(11));
     }
 
     @Test
@@ -125,7 +128,9 @@ class AuthControllerTest {
         mockMvc.perform(get("/api/auth/user"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.authenticated").value(true))
-                .andExpect(jsonPath("$.username").value("admin"));
+                .andExpect(jsonPath("$.username").value("admin"))
+                .andExpect(jsonPath("$.labels").isArray())
+                .andExpect(jsonPath("$.labels.length()").value(11));
     }
 
     @Test
@@ -143,5 +148,22 @@ class AuthControllerTest {
         MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
         assertNotNull(session, "Session should be created after login");
         assertFalse(session.isInvalid(), "Session should not be invalid");
+    }
+
+    @Test
+    void login_ShouldReturnAllSessionLabels() throws Exception {
+        LoginRequest loginRequest = new LoginRequest("admin", "changeme");
+
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.labels").isArray())
+                .andExpect(jsonPath("$.labels.length()").value(11))
+                .andExpect(jsonPath("$.labels").value(containsInAnyOrder(
+                    "COMPUTER_SCIENCE", "PHILOSOPHY", "RELIGION", "SOCIAL_SCIENCES",
+                    "LANGUAGE", "SCIENCE", "TECHNOLOGY", "ARTS", "LITERATURE",
+                    "HISTORY", "GEOGRAPHY"
+                )));
     }
 }
