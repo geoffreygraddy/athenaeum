@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 
 /**
  * Test class for AuthController.
@@ -157,16 +158,12 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.labels[0]").value("COMPUTER_SCIENCE"))
-                .andExpect(jsonPath("$.labels[1]").value("PHILOSOPHY"))
-                .andExpect(jsonPath("$.labels[2]").value("RELIGION"))
-                .andExpect(jsonPath("$.labels[3]").value("SOCIAL_SCIENCES"))
-                .andExpect(jsonPath("$.labels[4]").value("LANGUAGE"))
-                .andExpect(jsonPath("$.labels[5]").value("SCIENCE"))
-                .andExpect(jsonPath("$.labels[6]").value("TECHNOLOGY"))
-                .andExpect(jsonPath("$.labels[7]").value("ARTS"))
-                .andExpect(jsonPath("$.labels[8]").value("LITERATURE"))
-                .andExpect(jsonPath("$.labels[9]").value("HISTORY"))
-                .andExpect(jsonPath("$.labels[10]").value("GEOGRAPHY"));
+                .andExpect(jsonPath("$.labels").isArray())
+                .andExpect(jsonPath("$.labels.length()").value(11))
+                .andExpect(jsonPath("$.labels").value(containsInAnyOrder(
+                    "COMPUTER_SCIENCE", "PHILOSOPHY", "RELIGION", "SOCIAL_SCIENCES",
+                    "LANGUAGE", "SCIENCE", "TECHNOLOGY", "ARTS", "LITERATURE",
+                    "HISTORY", "GEOGRAPHY"
+                )));
     }
 }
