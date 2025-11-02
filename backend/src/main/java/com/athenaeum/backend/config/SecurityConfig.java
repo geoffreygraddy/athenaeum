@@ -33,7 +33,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringRequestMatchers("/api/auth/login", "/api/health", "/actuator/health", "/h2-console/**")
+                .ignoringRequestMatchers("/api/auth/login", "/api/auth/logout", "/api/health", "/actuator/health", "/h2-console/**")
             )
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/auth/**", "/api/health", "/actuator/health", "/h2-console/**").permitAll()
