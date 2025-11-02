@@ -18,6 +18,7 @@ public class AuthResponse {
         this.success = success;
         this.message = message;
         this.username = username;
+        this.labels = null; // Explicitly set to null for error/logout responses
     }
 
     public AuthResponse(boolean success, String message, String username, List<SessionLabel> labels) {

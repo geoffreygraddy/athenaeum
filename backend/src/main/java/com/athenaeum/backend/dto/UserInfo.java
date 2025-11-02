@@ -16,6 +16,7 @@ public class UserInfo {
     public UserInfo(String username, boolean authenticated) {
         this.username = username;
         this.authenticated = authenticated;
+        this.labels = List.of(); // Initialize to empty list for consistency
     }
 
     public UserInfo(String username, boolean authenticated, List<SessionLabel> labels) {

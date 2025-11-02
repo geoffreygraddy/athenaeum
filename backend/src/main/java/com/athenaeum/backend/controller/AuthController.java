@@ -68,7 +68,7 @@ public class AuthController {
             return ResponseEntity.ok(new AuthResponse(true, "Login successful", authentication.getName(), labels));
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new AuthResponse(false, "Invalid username or password", null));
+                .body(new AuthResponse(false, "Invalid username or password", null, null));
         }
     }
 
@@ -86,7 +86,7 @@ public class AuthController {
         }
         SecurityContextHolder.clearContext();
         
-        return ResponseEntity.ok(new AuthResponse(true, "Logout successful", null));
+        return ResponseEntity.ok(new AuthResponse(true, "Logout successful", null, null));
     }
 
     /**
@@ -104,6 +104,6 @@ public class AuthController {
             return ResponseEntity.ok(new UserInfo(authentication.getName(), true, labels));
         }
         
-        return ResponseEntity.ok(new UserInfo(null, false));
+        return ResponseEntity.ok(new UserInfo(null, false, List.of()));
     }
 }
