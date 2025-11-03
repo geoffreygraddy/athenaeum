@@ -12,13 +12,8 @@ services:
       - "5500:5500"
     volumes:
       - oracle-data:/opt/oracle/oradata
-      - ./backend/src/main/resources/oracle-init.sql:/docker-entrypoint-initdb.d/oracle-init.sql
+      - ./backend/src/main/resources/oracle-init.sql:/opt/oracle/scripts/startup/01-init.sql
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "sqlplus", "-L", "system/OraclePassword123@//localhost:1521/XE", "@/dev/null"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   frontend:
     build:

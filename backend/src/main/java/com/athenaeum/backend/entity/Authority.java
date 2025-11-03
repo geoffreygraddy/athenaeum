@@ -10,7 +10,8 @@ import jakarta.persistence.*;
 public class Authority {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "authorities_seq_generator")
+    @SequenceGenerator(name = "authorities_seq_generator", sequenceName = "authorities_seq", allocationSize = 1)
     private Integer id;
     
     @Column(length = 45)

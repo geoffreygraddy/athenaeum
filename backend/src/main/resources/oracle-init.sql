@@ -23,11 +23,17 @@ CREATE TABLE authorities (
 -- Create sequence for authorities table
 CREATE SEQUENCE authorities_seq START WITH 1 INCREMENT BY 1;
 
--- Note: Password is plain text '12345' as per requirements
--- In production, you should encode passwords using BCrypt
--- Example BCrypt hash for '12345': $2a$10$3qRNX7YqH8qVGlvLJlPz7.fU7bF0K7M8jqzUK5uZ0KqL5bj5Kg5dy
+-- WARNING: Security Notice
+-- The password below is stored in plain text as per the original requirements.
+-- In a production environment, you MUST:
+-- 1. Generate a BCrypt hash for the password using a tool or Spring Security's BCryptPasswordEncoder
+-- 2. Replace the plain text password with the BCrypt hash
+-- 3. Example BCrypt hash for '12345': $2a$10$XpTqGfobRa8yFX.6SSu7ieLGGfPwTvLKVEqJlkJT3LJVxLvVLKGzu
+--
+-- To generate a BCrypt hash in Java:
+-- String hash = new BCryptPasswordEncoder().encode("your_password");
 
--- Insert initial user
+-- Insert initial user (INSECURE - plain text password, for development only)
 INSERT INTO users (id, username, password, enabled) VALUES (users_seq.NEXTVAL, 'geoffrey', '12345', 1);
 
 -- Insert initial authority
