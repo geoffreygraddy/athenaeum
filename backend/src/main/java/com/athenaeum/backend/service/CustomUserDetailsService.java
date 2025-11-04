@@ -1,51 +1,46 @@
 package com.athenaeum.backend.service;
 
-import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Value;
+import com.athenaeum.backend.entity.Authority;
+import com.athenaeum.backend.repository.AuthorityRepository;
+import com.athenaeum.backend.repository.UserRepository;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
- * Custom UserDetailsService implementation for loading user details.
- * Currently uses in-memory storage with a single user from configuration.
+ * Custom UserDetailsService implementation for loading user details from Oracle database.
  */
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final PasswordEncoder passwordEncoder;
-    
-    @Value("${spring.security.user.name}")
-    private String username;
-    
-    @Value("${spring.security.user.password}")
-    private String password;
-    
-    private String encodedPassword;
+    private final UserRepository userRepository;
+    private final AuthorityRepository authorityRepository;
 
-    public CustomUserDetailsService(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
-    
-    @PostConstruct
-    public void init() {
-        // Encode password once during initialization
-        this.encodedPassword = passwordEncoder.encode(this.password);
+    public CustomUserDetailsService(UserRepository userRepository, AuthorityRepository authorityRepository) {
+        this.userRepository = userRepository;
+        this.authorityRepository = authorityRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        if (username.equals(this.username)) {
-            return User.builder()
-                .username(this.username)
-                .password(this.encodedPassword)
-                .roles("USER")
-                .build();
-        }
+        com.athenaeum.backend.entity.User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         
-        throw new UsernameNotFoundException("User not found: " + username);
+        List<Authority> authorities = authorityRepository.findByUsername(username);
+        
+        return User.builder()
+            .username(user.getUsername())
+            .password(user.getPassword())
+            .disabled(user.getEnabled() != 1)
+            .authorities(authorities.stream()
+                .map(auth -> new SimpleGrantedAuthority(auth.getAuthority()))
+                .collect(Collectors.toList()))
+            .build();
     }
 }

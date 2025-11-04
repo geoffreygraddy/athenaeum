@@ -14,15 +14,7 @@ services:
       - oracle-data:/opt/oracle/oradata
       - ./backend/src/main/resources/oracle-init.sql:/opt/oracle/scripts/startup/01-init.sql
     restart: unless-stopped
-
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: athenaeum-frontend
-    ports:
-      - "80:80"
-    restart: unless-stopped
+    shm_size: 1g
 
 volumes:
   oracle-data:
