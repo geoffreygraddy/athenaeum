@@ -21,7 +21,7 @@ docker-compose -f docker-compose-oracle.yml up -d
 This will:
 - Pull the Oracle Database 21c Express Edition image
 - Start the database on port 1521
-- Initialize the database with users and authorities tables
+- Initialize the database with users, authorities, and Spring Session tables
 - Create the default user 'geoffrey' with password '12345'
 
 ### Database Connection Details
@@ -68,6 +68,32 @@ mvn spring-boot:run -Dspring-boot.run.profiles=oracle
 ```
 
 ## Database Schema
+
+The Oracle initialization script creates the following tables:
+
+### Spring Session Tables
+
+Required for session management:
+
+```sql
+CREATE TABLE SPRING_SESSION (
+    PRIMARY_ID CHAR(36) NOT NULL,
+    SESSION_ID CHAR(36) NOT NULL,
+    CREATION_TIME NUMBER(19) NOT NULL,
+    LAST_ACCESS_TIME NUMBER(19) NOT NULL,
+    MAX_INACTIVE_INTERVAL NUMBER(10) NOT NULL,
+    EXPIRY_TIME NUMBER(19) NOT NULL,
+    PRINCIPAL_NAME VARCHAR2(100),
+    CONSTRAINT SPRING_SESSION_PK PRIMARY KEY (PRIMARY_ID)
+);
+
+CREATE TABLE SPRING_SESSION_ATTRIBUTES (
+    SESSION_PRIMARY_ID CHAR(36) NOT NULL,
+    ATTRIBUTE_NAME VARCHAR2(200) NOT NULL,
+    ATTRIBUTE_BYTES BLOB NOT NULL,
+    CONSTRAINT SPRING_SESSION_ATTRIBUTES_PK PRIMARY KEY (SESSION_PRIMARY_ID, ATTRIBUTE_NAME)
+);
+```
 
 ### Users Table
 
